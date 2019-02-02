@@ -128,7 +128,7 @@ public class HTTPNetworkTransport: NetworkTransport {
   ///   - response: The response received from the server, or `nil` if an error occurred.
   ///   - error: An error that indicates why a request failed, or `nil` if the request was succesful.
   /// - Returns: An object that can be used to cancel an in progress request.
-  public func send<Operation: GraphQLUploadOperation>(operation: Operation, completionHandler: @escaping (_ response: GraphQLResponse<Operation>?, _ error: Error?) -> Void) -> Cancellable {
+  public func sendUpload<Operation: GraphQLOperation & GraphQLUploadOperation>(operation: Operation, completionHandler: @escaping (_ response: GraphQLResponse<Operation>?, _ error: Error?) -> Void) -> Cancellable {
     let formData = buildMultipartFormData(for: operation)
 
     var request = URLRequest(url: url)
@@ -187,7 +187,7 @@ public class HTTPNetworkTransport: NetworkTransport {
     return ["query": operation.queryDocument, "variables": operation.variables]
   }
 
-  private func buildMultipartFormData<Operation: GraphQLUploadOperation>(for operation: Operation) -> MultipartFormData {
+  private func buildMultipartFormData<Operation: GraphQLOperation & GraphQLUploadOperation>(for operation: Operation) -> MultipartFormData {
     let formData = MultipartFormData(fileManager: fileManager)
 
     //Operations

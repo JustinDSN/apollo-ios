@@ -31,7 +31,7 @@ public extension GraphQLOperation {
   }
 }
 
-public protocol GraphQLUploadOperation: GraphQLOperation {
+public protocol GraphQLUploadOperation {
   var map: GraphQLMap? { get }
 
   var uploads: [GraphQLUpload]? { get }
@@ -54,11 +54,6 @@ public extension GraphQLQuery {
 
 public protocol GraphQLMutation: GraphQLOperation {}
 public extension GraphQLMutation {
-  var operationType: GraphQLOperationType { return .mutation }
-}
-
-public protocol GraphQLUploadMutation: GraphQLUploadOperation {}
-public extension GraphQLUploadMutation {
   var operationType: GraphQLOperationType { return .mutation }
 }
 
