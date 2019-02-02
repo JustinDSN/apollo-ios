@@ -130,13 +130,13 @@ public class ApolloClient {
   ///   - queue: A dispatch queue on which the result handler will be called. Defaults to the main queue.
   ///   - resultHandler: An optional closure that is called when mutation results are available or when an error occurs.
   /// - Returns: An object that can be used to cancel an in progress mutation.
-  @discardableResult public func perform<Mutation: GraphQLMutation & GraphQLUploadOperation>(mutation: Mutation, queue: DispatchQueue = DispatchQueue.main, resultHandler: OperationResultHandler<Mutation>? = nil) -> Cancellable {
-    return _perform(mutation: mutation, queue: queue, resultHandler: resultHandler)
-  }
-
-  func _perform<Mutation: GraphQLMutation & GraphQLUploadOperation>(mutation: Mutation, context: UnsafeMutableRawPointer? = nil, queue: DispatchQueue, resultHandler: OperationResultHandler<Mutation>?) -> Cancellable {
-    return send(operation: mutation, context: context, handlerQueue: queue, resultHandler: resultHandler)
-  }
+//  @discardableResult public func perform<Mutation: GraphQLMutation & GraphQLUploadOperation>(mutation: Mutation, queue: DispatchQueue = DispatchQueue.main, resultHandler: OperationResultHandler<Mutation>? = nil) -> Cancellable {
+//    return _perform(mutation: mutation, queue: queue, resultHandler: resultHandler)
+//  }
+//
+//  func _perform<Mutation: GraphQLMutation & GraphQLUploadOperation>(mutation: Mutation, context: UnsafeMutableRawPointer? = nil, queue: DispatchQueue, resultHandler: OperationResultHandler<Mutation>?) -> Cancellable {
+//    return send(operation: mutation, context: context, handlerQueue: queue, resultHandler: resultHandler)
+//  }
 
   /// Subscribe to a subscription
   ///
@@ -156,6 +156,31 @@ public class ApolloClient {
       handlerQueue.async {
         resultHandler(result, error)
       }
+    }
+    
+    if let operation = operation as? GraphQLUploadOperation {
+        return networkTransport.send(operation: operation) { (response, error) in
+//            guard let response = response else {
+//                notifyResultHandler(result: nil, error: error)
+//                return
+//            }
+//
+//            firstly {
+//                try response.parseResult(cacheKeyForObject: self.cacheKeyForObject)
+//                }.andThen { (result, records) in
+//                    notifyResultHandler(result: result, error: nil)
+//
+//                    if let records = records {
+//                        self.store.publish(records: records, context: context).catch { error in
+//                            preconditionFailure(String(describing: error))
+//                        }
+//                    }
+//                }.catch { error in
+//                    notifyResultHandler(result: nil, error: error)
+//            }
+        }
+    } else {
+        
     }
     
     return networkTransport.send(operation: operation) { (response, error) in
@@ -180,36 +205,36 @@ public class ApolloClient {
     }
   }
 
-  fileprivate func send<Operation: GraphQLOperation & GraphQLUploadOperation>(operation: Operation, context: UnsafeMutableRawPointer?, handlerQueue: DispatchQueue, resultHandler: OperationResultHandler<Operation>?) -> Cancellable {
-    func notifyResultHandler(result: GraphQLResult<Operation.Data>?, error: Error?) {
-      guard let resultHandler = resultHandler else { return }
-
-      handlerQueue.async {
-        resultHandler(result, error)
-      }
-    }
-
-    return networkTransport.sendUpload(operation: operation) { (response, error) in
-      guard let response = response else {
-        notifyResultHandler(result: nil, error: error)
-        return
-      }
-
-      firstly {
-        try response.parseResult(cacheKeyForObject: self.cacheKeyForObject)
-        }.andThen { (result, records) in
-          notifyResultHandler(result: result, error: nil)
-
-          if let records = records {
-            self.store.publish(records: records, context: context).catch { error in
-              preconditionFailure(String(describing: error))
-            }
-          }
-        }.catch { error in
-          notifyResultHandler(result: nil, error: error)
-      }
-    }
-  }
+//  fileprivate func send<Operation: GraphQLUploadOperation>(operation: Operation, context: UnsafeMutableRawPointer?, handlerQueue: DispatchQueue, resultHandler: OperationResultHandler<Operation>?) -> Cancellable {
+//    func notifyResultHandler(result: GraphQLResult<Operation.Data>?, error: Error?) {
+//      guard let resultHandler = resultHandler else { return }
+//
+//      handlerQueue.async {
+//        resultHandler(result, error)
+//      }
+//    }
+//
+//    return networkTransport.send(operation: operation) { (response, error) in
+//      guard let response = response else {
+//        notifyResultHandler(result: nil, error: error)
+//        return
+//      }
+//
+//      firstly {
+//        try response.parseResult(cacheKeyForObject: self.cacheKeyForObject)
+//        }.andThen { (result, records) in
+//          notifyResultHandler(result: result, error: nil)
+//
+//          if let records = records {
+//            self.store.publish(records: records, context: context).catch { error in
+//              preconditionFailure(String(describing: error))
+//            }
+//          }
+//        }.catch { error in
+//          notifyResultHandler(result: nil, error: error)
+//      }
+//    }
+//  }
 }
 
 private final class FetchQueryOperation<Query: GraphQLQuery>: AsynchronousOperation, Cancellable {

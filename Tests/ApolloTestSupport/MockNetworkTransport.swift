@@ -15,10 +15,6 @@ public final class MockNetworkTransport: NetworkTransport {
     return MockTask()
   }
   
-  public func sendUpload<Operation>(operation: Operation, completionHandler: @escaping (GraphQLResponse<Operation>?, Error?) -> Void) -> Cancellable where Operation : GraphQLOperation, Operation : GraphQLUploadOperation {
-    return MockTask()
-  }
-  
 }
 
 private final class MockTask: Cancellable {
